@@ -26,7 +26,7 @@ import { Icon } from '../shared/icon';
       <p class="ft__contact">
         <a [href]="'mailto:' + site.email">{{ site.email }}</a>
         <span aria-hidden="true">·</span>
-        <span>{{ site.phone }}</span>
+        <a [href]="whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp (opens in a new tab)">{{ site.phone }}</a>
       </p>
 
       <ul class="ft__socials">
@@ -226,6 +226,7 @@ export class Footer {
   readonly nav = inject(NavService);
   readonly site = SITE;
   readonly links = QUICK_LINKS;
+  readonly whatsapp = `https://wa.me/${SITE.whatsapp}`;
   /** The designer's Instagram, so a visitor can message him. */
   readonly designer = 'https://www.instagram.com/beshoymokhles_';
   readonly year = new Date().getFullYear();

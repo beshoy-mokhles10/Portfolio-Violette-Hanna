@@ -39,7 +39,7 @@ const INTRO = 'Have a shoot in mind or a print to order? Write to me and every m
         </li>
         <li>
           <span><app-icon name="phone" [size]="22" /> Phone</span>
-          <a [href]="'tel:' + site.phone">{{ site.phone }}</a>
+          <a [href]="whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp (opens in a new tab)">{{ site.phone }}</a>
         </li>
         <li>
           <span><app-icon name="pin" [size]="22" /> Location</span>
@@ -155,6 +155,7 @@ const INTRO = 'Have a shoot in mind or a print to order? Write to me and every m
 export class Contact {
   readonly site = SITE;
   readonly intro = INTRO;
+  readonly whatsapp = `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hello Violette, I found your website and I would like to book a session.')}`;
 
   constructor() {
     inject(SeoService).update({

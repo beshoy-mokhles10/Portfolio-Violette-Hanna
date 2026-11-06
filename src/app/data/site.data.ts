@@ -7,6 +7,8 @@ export const SITE = {
   tagline: ['Every Frame Tells Someone’s Story.', 'See the world through the lens of Violette Hanna.'],
   email: 'hello@example.com',
   phone: '01123301880',
+  /** The same number in international form (Egypt, +20) with no plus or leading zero, as wa.me wants it. */
+  whatsapp: '201123301880',
   location: '[Street, City, Country]',
   days: '[Working days]',
   hours: '[Working hours]',
