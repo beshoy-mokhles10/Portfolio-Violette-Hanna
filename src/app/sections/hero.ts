@@ -4,10 +4,10 @@ import { IntroService } from '../core/intro.service';
 const STRIP = ['LOGO', 'YOUR CLIENT', 'Logoipsum', 'BRAND', 'logo ipsum', 'YOUR CLIENT'];
 
 /**
- * The opening plays by itself, with no scrolling needed. Her name is signed in
- * across a soft peach page, a fine line is drawn beneath it, and then the page
- * parts down the middle like a curtain, taking the name with it, to uncover the
- * photograph, which settles from a slight zoom as the header comes in.
+ * The opening plays by itself, with no scrolling needed, and is meant to be quiet.
+ * Her name rises onto a soft peach page and a fine line is drawn beneath it. Then
+ * both fade, and the page itself dissolves to uncover the photograph, which
+ * settles from a slight zoom as the header comes in.
  */
 @Component({
   selector: 'app-hero',
@@ -21,9 +21,11 @@ const STRIP = ['LOGO', 'YOUR CLIENT', 'Logoipsum', 'BRAND', 'logo ipsum', 'YOUR 
         fetchpriority="high" />
 
       <h1 class="sr-only">Violette Hanna</h1>
-      <div class="hx__half hx__half--l" aria-hidden="true"><div class="hx__sig"><span>Violette Hanna</span></div></div>
-      <div class="hx__half hx__half--r" aria-hidden="true"><div class="hx__sig"><span>Violette Hanna</span></div></div>
-      <span class="hx__rule" aria-hidden="true"></span>
+      <div class="hx__page" aria-hidden="true">
+        <span class="hx__sig">Violette Hanna</span>
+        <span class="hx__rule"></span>
+      </div>
+      <span class="hx__scroll" aria-hidden="true">Scroll</span>
     </section>
 
     <div class="hx__strip" aria-hidden="true">
@@ -53,8 +55,8 @@ const STRIP = ['LOGO', 'YOUR CLIENT', 'Logoipsum', 'BRAND', 'logo ipsum', 'YOUR 
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transform: scale(1.14);
-        animation: hx-settle 3.4s cubic-bezier(0.33, 0, 0.1, 1) 3.5s both;
+        transform: scale(1.08);
+        animation: hx-settle 4.4s var(--soft) 2.8s both;
       }
       @keyframes hx-settle {
         to {
@@ -62,113 +64,119 @@ const STRIP = ['LOGO', 'YOUR CLIENT', 'Logoipsum', 'BRAND', 'logo ipsum', 'YOUR 
         }
       }
 
-      /* The page, in two halves that each carry half of the signed name. */
-      .hx__half {
+      /* The peach page the name sits on. It dissolves, slowly, onto the photograph. */
+      .hx__page {
         position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 50%;
-        overflow: hidden;
+        inset: 0;
         z-index: 3;
+        display: grid;
+        place-items: center;
         background: var(--bg);
-        will-change: transform;
+        animation: hx-dissolve 2.4s var(--soft) 2.8s both;
       }
-      .hx__half--l {
-        left: 0;
-        animation: hx-part-l 2.6s var(--soft) 3.9s both;
-      }
-      .hx__half--r {
-        right: 0;
-        animation: hx-part-r 2.6s var(--soft) 3.9s both;
-      }
-      @keyframes hx-part-l {
-        0% {
-          transform: translateX(0);
-          box-shadow: 0 0 0 0 rgb(70 30 20 / 0);
-        }
-        12% {
-          box-shadow: 0 0 70px 6px rgb(70 30 20 / 0.28);
-        }
-        100% {
-          transform: translateX(-104%);
-          box-shadow: 0 0 70px 6px rgb(70 30 20 / 0.28);
-        }
-      }
-      @keyframes hx-part-r {
-        0% {
-          transform: translateX(0);
-          box-shadow: 0 0 0 0 rgb(70 30 20 / 0);
-        }
-        12% {
-          box-shadow: 0 0 70px 6px rgb(70 30 20 / 0.28);
-        }
-        100% {
-          transform: translateX(104%);
-          box-shadow: 0 0 70px 6px rgb(70 30 20 / 0.28);
+      @keyframes hx-dissolve {
+        to {
+          opacity: 0;
+          visibility: hidden;
         }
       }
       .hx__sig {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 100vw;
-        display: grid;
-        place-items: center;
+        padding: 0.12em 0.22em 0.2em;
         font-family: 'Allura', cursive;
         font-size: clamp(60px, 15vw, 260px);
         line-height: 1;
         color: var(--brown);
+        opacity: 0;
+        animation:
+          hx-rise 1.8s var(--soft) 0.3s both,
+          hx-fade 1.4s var(--soft) 2.6s forwards;
       }
-      .hx__half--l .hx__sig {
-        left: 0;
-      }
-      .hx__half--r .hx__sig {
-        right: 0;
-      }
-      /* The name is written in by a soft-edged wipe, not a hard cut, so the strokes seem to be laid down. */
-      .hx__sig span {
-        display: block;
-        padding: 0.12em 0.22em 0.2em;
-        -webkit-mask: linear-gradient(90deg, #000 calc(100% - 0.7em), transparent) left / 0% 100% no-repeat;
-        mask: linear-gradient(90deg, #000 calc(100% - 0.7em), transparent) left / 0% 100% no-repeat;
-        animation: hx-write 2.9s cubic-bezier(0.4, 0, 0.25, 1) 0.5s both;
-      }
-      @keyframes hx-write {
+      @keyframes hx-rise {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
         to {
-          -webkit-mask-size: calc(100% + 0.7em) 100%;
-          mask-size: calc(100% + 0.7em) 100%;
+          opacity: 1;
+          transform: none;
         }
       }
-      /* A fine line drawn under the name, then gone before the page opens. */
+      @keyframes hx-fade {
+        to {
+          opacity: 0;
+        }
+      }
+      /* A fine line drawn under the name. */
       .hx__rule {
         position: absolute;
         left: 50%;
-        top: calc(50% + clamp(30px, 5.4vw, 92px));
-        z-index: 4;
-        width: min(46vw, 620px);
-        height: 1.5px;
-        margin-left: calc(min(46vw, 620px) / -2);
-        background: linear-gradient(90deg, transparent, var(--brown) 18%, var(--brown) 82%, transparent);
+        top: calc(50% + clamp(50px, 7.6vw, 130px));
+        width: min(24vw, 300px);
+        height: 1px;
+        margin-left: calc(min(24vw, 300px) / -2);
+        background: linear-gradient(90deg, transparent, var(--brown) 20%, var(--brown) 80%, transparent);
         transform: scaleX(0);
-        transform-origin: left;
         animation:
-          hx-line 1.5s cubic-bezier(0.4, 0, 0.2, 1) 2.3s both,
-          hx-line-out 0.6s ease 3.55s forwards;
+          hx-line 1.2s var(--soft) 1.2s both,
+          hx-fade 1.2s var(--soft) 2.6s forwards;
       }
       @keyframes hx-line {
         to {
           transform: scaleX(1);
         }
       }
-      @keyframes hx-line-out {
+
+      /* A small cue, once the photograph is in. */
+      .hx__scroll {
+        position: absolute;
+        left: 50%;
+        bottom: 34px;
+        z-index: 4;
+        translate: -50% 0;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.4em;
+        text-transform: uppercase;
+        text-shadow: 0 1px 10px rgb(0 0 0 / 0.35);
+        opacity: 0;
+        animation: hx-cue 1s ease 5.2s both;
+      }
+      .hx__scroll::after {
+        content: '';
+        display: block;
+        width: 1px;
+        height: 34px;
+        margin: 10px auto 0;
+        background: currentColor;
+        animation: hx-drip 2s ease-in-out 5.2s infinite;
+      }
+      @keyframes hx-cue {
         to {
-          opacity: 0;
+          opacity: 0.85;
+        }
+      }
+      @keyframes hx-drip {
+        0% {
+          transform: scaleY(0);
+          transform-origin: top;
+        }
+        50% {
+          transform: scaleY(1);
+          transform-origin: top;
+        }
+        51% {
+          transform-origin: bottom;
+        }
+        100% {
+          transform: scaleY(0);
+          transform-origin: bottom;
         }
       }
 
       /* Seen on returning to Home, and under reduced motion: just the photograph. */
-      .no-intro .hx__half,
-      .no-intro .hx__rule {
+      .no-intro .hx__page,
+      .no-intro .hx__scroll {
         display: none;
       }
       .no-intro .hx__img {
@@ -211,8 +219,8 @@ const STRIP = ['LOGO', 'YOUR CLIENT', 'Logoipsum', 'BRAND', 'logo ipsum', 'YOUR 
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        .hx__half,
-        .hx__rule {
+        .hx__page,
+        .hx__scroll {
           display: none;
         }
         .hx__img,

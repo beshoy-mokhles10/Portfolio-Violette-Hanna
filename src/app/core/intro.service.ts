@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
 /** Length of Home's opening sequence, up to the moment the header drops in. */
-const INTRO_MS = 5600;
+const INTRO_MS = 4600;
 
 /** The opening sequence plays once per visit; `ready` is when the header may appear. */
 @Injectable({ providedIn: 'root' })
