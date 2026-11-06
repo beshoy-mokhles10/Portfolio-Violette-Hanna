@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://violette-hanna.vercel.app/sitemap.xml

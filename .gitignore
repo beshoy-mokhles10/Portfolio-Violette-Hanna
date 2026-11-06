@@ -1,0 +1,16 @@
+/node_modules
+/dist
+/out-tsc
+/.angular
+.DS_Store
+Thumbs.db
+*.log
+.env
+.vscode/*
+!.vscode/extensions.json
+/test-results
+/playwright-report
+/playwright/.cache
+
+# large source videos (use compressed .mp4)
+*.mov
