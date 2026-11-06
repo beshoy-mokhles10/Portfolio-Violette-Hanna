@@ -3,7 +3,7 @@ export const SITE = {
   name: 'Violette Hanna',
   shortName: 'Violette',
   /** The real domain goes here, in index.html, sitemap.xml and robots.txt. */
-  url: 'https://violette-hanna.vercel.app',
+  url: 'https://portfolio-violette-hanna.vercel.app',
   tagline: ['Every Frame Tells Someone’s Story.', 'See the world through the lens of Violette Hanna.'],
   email: 'hello@example.com',
   phone: '01123301880',

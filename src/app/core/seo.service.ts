@@ -17,7 +17,7 @@ export class SeoService {
   private readonly titleService = inject(Title);
   private readonly meta = inject(Meta);
 
-  update({ title, description, path, image = 'assets/img/hero.jpg' }: SeoData): void {
+  update({ title, description, path, image = 'og-image.jpg' }: SeoData): void {
     const url = `${SITE.url}${path}`;
     const imageUrl = `${SITE.url}/${image}`;
     this.titleService.setTitle(title);

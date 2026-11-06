@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://violette-hanna.vercel.app/sitemap.xml
+Sitemap: https://portfolio-violette-hanna.vercel.app/sitemap.xml
