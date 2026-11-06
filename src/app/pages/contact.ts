@@ -6,7 +6,7 @@ import { Icon } from '../shared/icon';
 import { PageHero } from '../shared/page-hero';
 import { Reveal } from '../shared/reveal.directive';
 
-type Status = 'idle' | 'sending' | 'sent' | 'failed';
+type Status = 'idle' | 'sending' | 'sent' | 'draft' | 'failed';
 
 const INTRO = 'Have a shoot in mind or a print to order? Write to me and every message will be answered personally.';
 
@@ -26,71 +26,122 @@ const INTRO = 'Have a shoot in mind or a print to order? Write to me and every m
       <div class="ct__panel" appReveal="120">
         <img src="assets/img/contact.jpg" alt="A photographer holding a camera up to her eye" loading="lazy" decoding="async" />
 
-        <form class="ct__form" (ngSubmit)="submit()" novalidate>
-          <p class="eyebrow">Send A Message</p>
-          <h3>Let’s Start A Conversation</h3>
-          <p class="ct__lead">Fill in the form and I will get back to you soon.</p>
+        <form class="ct__form" (ngSubmit)="advance()" novalidate>
+          @if (step() < 3) {
+            <ol class="ct__prog" aria-label="Progress">
+              @for (n of [0, 1, 2]; track n) {
+                <li [class.is-on]="n <= step()" [attr.aria-current]="n === step() ? 'step' : null"></li>
+              }
+            </ol>
+          }
 
-          <div class="ct__fields">
-            <label>
-              <span class="sr-only">Full name</span>
-              <input name="name" placeholder="Full name" autocomplete="name" [(ngModel)]="name" [attr.aria-invalid]="errors().name" />
-              @if (errors().name) {
-                <small role="alert">Please enter your name.</small>
-              }
-            </label>
-            <label>
-              <span class="sr-only">Email address</span>
-              <input name="email" type="email" placeholder="Email address" autocomplete="email" [(ngModel)]="email" [attr.aria-invalid]="errors().email" />
-              @if (errors().email) {
-                <small role="alert">Please enter a valid email.</small>
-              }
-            </label>
-            <label>
-              <span class="sr-only">Phone number</span>
-              <input name="phone" type="tel" placeholder="Phone number" autocomplete="tel" [(ngModel)]="phone" />
-            </label>
-            <label>
-              <span class="sr-only">Subject</span>
-              <input name="subject" placeholder="I’m writing about" [(ngModel)]="subject" />
-            </label>
-          </div>
+          @switch (step()) {
+            @case (0) {
+              <div class="ct__step">
+                <p class="eyebrow">Step 1 of 3</p>
+                <h3>What Are We Capturing?</h3>
+                <div class="ct__cards" role="radiogroup" aria-label="Type of shoot">
+                  @for (option of interests; track option.label) {
+                    <button
+                      type="button"
+                      role="radio"
+                      class="ct__card"
+                      [class.is-on]="interest() === option.label"
+                      [attr.aria-checked]="interest() === option.label"
+                      [style.background-image]="'url(' + option.image + ')'"
+                      (click)="interest.set(option.label)">
+                      <span>{{ option.label }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            @case (1) {
+              <div class="ct__step">
+                <p class="eyebrow">Step 2 of 3</p>
+                <h3>When Are You Thinking?</h3>
+                <div class="ct__times" role="radiogroup" aria-label="Timing">
+                  @for (option of timings; track option) {
+                    <button
+                      type="button"
+                      role="radio"
+                      class="ct__time"
+                      [class.is-on]="timing() === option"
+                      [attr.aria-checked]="timing() === option"
+                      (click)="timing.set(option)">
+                      {{ option }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            @case (2) {
+              <div class="ct__step">
+                <p class="eyebrow">Step 3 of 3</p>
+                <h3>Tell Me About You</h3>
+                <div class="ct__fields">
+                  <label>
+                    <span class="sr-only">Full name</span>
+                    <input name="name" placeholder="Full name" autocomplete="name" [(ngModel)]="name" [attr.aria-invalid]="errors().name" />
+                    @if (errors().name) {
+                      <small role="alert">Please enter your name.</small>
+                    }
+                  </label>
+                  <label>
+                    <span class="sr-only">Email address</span>
+                    <input name="email" type="email" placeholder="Email address" autocomplete="email" [(ngModel)]="email" [attr.aria-invalid]="errors().email" />
+                    @if (errors().email) {
+                      <small role="alert">Please enter a valid email.</small>
+                    }
+                  </label>
+                  <label>
+                    <span class="sr-only">Phone number (optional)</span>
+                    <input name="phone" type="tel" placeholder="Phone number (optional)" autocomplete="tel" [(ngModel)]="phone" />
+                  </label>
+                </div>
+                <label class="ct__message">
+                  <span class="sr-only">Your message</span>
+                  <textarea name="message" rows="2" placeholder="Anything you’d like me to know" [(ngModel)]="message" [attr.aria-invalid]="errors().message"></textarea>
+                  @if (errors().message) {
+                    <small role="alert">Please write a short message.</small>
+                  }
+                </label>
+              </div>
+            }
+            @default {
+              <div class="ct__step ct__done" role="status">
+                <span class="ct__check" aria-hidden="true"><app-icon name="leaf" /></span>
+                <h3>{{ status() === 'sent' ? 'Request Received' : 'Almost There' }}</h3>
+                <p>
+                  @if (status() === 'sent') {
+                    Thank you. I will reply within 24 hours with the next steps.
+                  } @else {
+                    Your email app is opening with your request filled in. Press send there to finish.
+                  }
+                </p>
+                <button type="button" class="ct__back" (click)="reset()">Send another request</button>
+              </div>
+            }
+          }
 
-          <fieldset>
-            <legend>Interested in</legend>
-            <div class="ct__chips">
-              @for (option of interests; track option) {
-                <button
-                  type="button"
-                  class="ct__chip"
-                  [class.is-on]="interest() === option"
-                  [attr.aria-pressed]="interest() === option"
-                  (click)="interest.set(option)">
-                  {{ option }}
-                </button>
+          @if (step() < 3) {
+            <div class="ct__nav">
+              @if (step() > 0) {
+                <button type="button" class="ct__back" (click)="back()">← Back</button>
+              } @else {
+                <span></span>
               }
+              <button type="submit" class="plank" [disabled]="status() === 'sending'">
+                {{ step() < 2 ? 'Next' : status() === 'sending' ? 'Sending…' : 'Send Request' }}
+                <app-icon name="leaf" />
+              </button>
             </div>
-          </fieldset>
-
-          <label class="ct__message">
-            <span class="sr-only">Your message</span>
-            <textarea name="message" rows="2" placeholder="Your message" [(ngModel)]="message" [attr.aria-invalid]="errors().message"></textarea>
-            @if (errors().message) {
-              <small role="alert">Please write a short message.</small>
-            }
-          </label>
-
-          <button type="submit" class="plank" [disabled]="status() === 'sending'">
-            {{ status() === 'sending' ? 'Sending…' : 'Send Message' }}
-            <app-icon name="leaf" />
-          </button>
-          <p class="ct__status" aria-live="polite">
-            @if (status() === 'sent') {
-              Thank you. Your message is on its way.
-            } @else if (status() === 'failed') {
-              Something went wrong. Please email {{ site.email }} directly.
-            }
-          </p>
+            <p class="ct__status" aria-live="polite">
+              @if (status() === 'failed') {
+                Something went wrong. Please email {{ site.email }} directly.
+              }
+            </p>
+          }
         </form>
 
         <ul class="ct__info">
@@ -176,45 +227,146 @@ const INTRO = 'Have a shoot in mind or a print to order? Write to me and every m
         margin-top: 5px;
         color: #8a2b1d;
       }
-      fieldset {
+      .ct__prog {
+        display: flex;
+        gap: 8px;
         width: 100%;
-        margin: 26px 0 0;
-        padding: 0;
-        border: 0;
+        margin-bottom: 26px;
+        list-style: none;
       }
-      legend {
-        padding: 0;
-        margin-bottom: 10px;
-        color: var(--muted);
+      .ct__prog li {
+        flex: 1;
+        height: 3px;
+        border-radius: 2px;
+        background: var(--line);
+        transition: background-color 0.5s ease;
       }
-      .ct__chips {
+      .ct__prog li.is-on {
+        background: var(--brown);
+      }
+      .ct__step {
+        width: 100%;
+        animation: ct-in 0.5s var(--ease) both;
+      }
+      @keyframes ct-in {
+        from {
+          opacity: 0;
+          transform: translateX(18px);
+        }
+      }
+      .ct__cards {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 10px;
+        gap: 12px;
+        margin-top: 24px;
       }
-      .ct__chip {
-        min-height: 46px;
-        padding: 6px;
+      .ct__card {
+        position: relative;
+        aspect-ratio: 3 / 4;
+        padding: 0;
+        border: 2px solid transparent;
+        background-size: cover;
+        background-position: center;
+        cursor: pointer;
+        overflow: hidden;
+        transition:
+          transform 0.35s var(--ease),
+          border-color 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+      .ct__card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(transparent 45%, rgb(79 47 40 / 0.82));
+      }
+      .ct__card span {
+        position: absolute;
+        z-index: 1;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        color: #fff;
+        font-family: var(--head);
+        font-style: italic;
+        font-size: 17px;
+        line-height: 1.15;
+        text-align: left;
+      }
+      .ct__card:hover {
+        transform: translateY(-4px);
+      }
+      .ct__card.is-on {
+        border-color: var(--brown);
+        box-shadow: 0 0 0 3px var(--tan);
+      }
+      .ct__times {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 24px;
+      }
+      .ct__time {
+        padding: 18px 12px;
         border: 1px solid var(--line);
         background: none;
-        font-size: 14px;
-        line-height: 1.2;
+        color: var(--ink);
         cursor: pointer;
         transition:
           background-color 0.25s ease,
-          color 0.25s ease;
+          color 0.25s ease,
+          border-color 0.25s ease;
       }
-      .ct__chip:hover {
+      .ct__time:hover {
         border-color: var(--brown);
       }
-      .ct__chip.is-on {
+      .ct__time.is-on {
         background: var(--brown);
         border-color: var(--brown);
         color: var(--on-brown);
       }
-      .ct__message {
+      .ct__nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         width: 100%;
-        margin-block: 18px 28px;
+        margin-top: 26px;
+      }
+      .ct__back {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--muted);
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+      .ct__back:hover {
+        color: var(--brown);
+      }
+      .ct__done {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-block: 50px;
+        text-align: center;
+      }
+      .ct__done p {
+        margin-block: 8px 20px;
+        color: var(--muted);
+      }
+      .ct__check {
+        display: grid;
+        place-items: center;
+        width: 62px;
+        height: 62px;
+        border-radius: 50%;
+        background: var(--brown);
+        color: var(--on-brown);
+      }
+      .ct__message {
+        display: block;
+        width: 100%;
+        margin-block: 20px 0;
       }
       .ct__status {
         min-height: 24px;
@@ -268,12 +420,17 @@ const INTRO = 'Have a shoot in mind or a print to order? Write to me and every m
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        .ct__step {
+          animation: none;
+        }
+      }
       @media (max-width: 560px) {
         .ct__fields,
         .ct__info {
           grid-template-columns: minmax(0, 1fr);
         }
-        .ct__chips {
+        .ct__cards {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
@@ -283,14 +440,23 @@ const INTRO = 'Have a shoot in mind or a print to order? Write to me and every m
 export class Contact {
   readonly site = SITE;
   readonly intro = INTRO;
-  readonly interests = ['Portraits', 'Weddings & Events', 'Products & Commercial', 'Nature & Landscape'];
+  readonly interests = [
+    { label: 'Portraits', image: 'assets/img/p-woman-profile.jpg' },
+    { label: 'Weddings & Events', image: 'assets/img/w-bride-field.jpg' },
+    { label: 'Products & Commercial', image: 'assets/img/c-still.jpg' },
+    { label: 'Nature & Landscape', image: 'assets/img/n-lake-pines.jpg' }
+  ];
+  readonly timings = ['As soon as possible', 'In 1 to 3 months', 'In 3 to 6 months', 'Just exploring'];
 
   readonly name = signal('');
   readonly email = signal('');
   readonly phone = signal('');
   readonly subject = signal('');
   readonly message = signal('');
-  readonly interest = signal(this.interests[0]);
+  readonly interest = signal(this.interests[0].label);
+  readonly timing = signal(this.timings[3]);
+  /** 0 and 1 are the choices, 2 the details, 3 the thank-you. */
+  readonly step = signal(0);
   readonly status = signal<Status>('idle');
   readonly errors = signal({ name: false, email: false, message: false });
 
@@ -301,6 +467,20 @@ export class Contact {
       path: '/contact-us',
       image: 'assets/img/contact.jpg'
     });
+  }
+
+  advance(): void {
+    if (this.step() < 2) this.step.update((n) => n + 1);
+    else void this.submit();
+  }
+
+  back(): void {
+    this.step.update((n) => Math.max(0, n - 1));
+  }
+
+  reset(): void {
+    this.status.set('idle');
+    this.step.set(0);
   }
 
   async submit(): Promise<void> {
@@ -320,10 +500,13 @@ export class Contact {
         `Email: ${this.email()}`,
         `Phone: ${this.phone()}`,
         `Interested in: ${this.interest()}`,
+        `Timing: ${this.timing()}`,
         '',
         this.message()
       ].join('\n');
       const subject = this.subject() || `${this.interest()} enquiry from ${this.name()}`;
+      this.status.set('draft');
+      this.step.set(3);
       window.location.href = `mailto:${SITE.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       return;
     }
@@ -343,12 +526,14 @@ export class Contact {
             phone: this.phone(),
             subject: this.subject(),
             interest: this.interest(),
+            timing: this.timing(),
             message: this.message()
           }
         })
       });
       if (!response.ok) throw new Error(`EmailJS ${response.status}`);
       this.status.set('sent');
+      this.step.set(3);
       this.name.set('');
       this.email.set('');
       this.phone.set('');

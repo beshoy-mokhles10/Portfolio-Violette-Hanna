@@ -22,20 +22,23 @@ export const COLLECTION: Print[] = [
   { image: 'assets/img/n-acacia.jpg', title: 'Last Light', note: 'One tree against the end of the day, and no reason to hurry.' }
 ];
 
-export const WALL: { image: string; alt: string }[] = [
-  { image: 'assets/img/n-snow.jpg', alt: 'Snow-capped mountains above green farmland' },
-  { image: 'assets/img/p-elder-2.jpg', alt: 'Black-and-white portrait of an older man' },
-  { image: 'assets/img/n-still-lake.jpg', alt: 'A calm lake below a pine-covered shore' },
-  { image: 'assets/img/c-band.jpg', alt: 'A black fitness band on a neutral ground' },
-  { image: 'assets/img/e-stage.jpg', alt: 'A performer silhouetted against stage lights' },
-  { image: 'assets/img/n-palms.jpg', alt: 'Palm trees silhouetted at sunset' },
-  { image: 'assets/img/n-lake-pines.jpg', alt: 'Pine trees along a blue mountain lake' },
-  { image: 'assets/img/w-reeds.jpg', alt: 'A bride among tall reeds by the water' },
-  { image: 'assets/img/p-classic.jpg', alt: 'A classic black-and-white studio portrait' },
-  { image: 'assets/img/e-celebration.jpg', alt: 'Guests in flower garlands at a celebration' },
-  { image: 'assets/img/n-forest.jpg', alt: 'Sunlight breaking through a dark forest' },
-  { image: 'assets/img/c-still.jpg', alt: 'Cosmetics arranged on a blue surface' },
-  { image: 'assets/img/w-shore.jpg', alt: 'A bride on a wooden pier beside a lake' }
+export type WallCategory = 'Portraits' | 'Weddings' | 'Commercial' | 'Landscape' | 'Events';
+
+/** TODO(violette): titles and categories are sample ones; set them to her own. */
+export const WALL: { image: string; alt: string; title: string; category: WallCategory }[] = [
+  { image: 'assets/img/n-snow.jpg', alt: 'Snow-capped mountains above green farmland', title: 'First Snow', category: 'Landscape' },
+  { image: 'assets/img/p-elder-2.jpg', alt: 'Black-and-white portrait of an older man', title: 'A Long Story', category: 'Portraits' },
+  { image: 'assets/img/n-still-lake.jpg', alt: 'A calm lake below a pine-covered shore', title: 'Still Water', category: 'Landscape' },
+  { image: 'assets/img/c-band.jpg', alt: 'A black fitness band on a neutral ground', title: 'Everyday Carry', category: 'Commercial' },
+  { image: 'assets/img/e-stage.jpg', alt: 'A performer silhouetted against stage lights', title: 'Stage Lights', category: 'Events' },
+  { image: 'assets/img/n-palms.jpg', alt: 'Palm trees silhouetted at sunset', title: 'Last Light', category: 'Landscape' },
+  { image: 'assets/img/n-lake-pines.jpg', alt: 'Pine trees along a blue mountain lake', title: 'Blue Hour Shore', category: 'Landscape' },
+  { image: 'assets/img/w-reeds.jpg', alt: 'A bride among tall reeds by the water', title: 'Among the Reeds', category: 'Weddings' },
+  { image: 'assets/img/p-classic.jpg', alt: 'A classic black-and-white studio portrait', title: 'Classic', category: 'Portraits' },
+  { image: 'assets/img/e-celebration.jpg', alt: 'Guests in flower garlands at a celebration', title: 'Garlands', category: 'Events' },
+  { image: 'assets/img/n-forest.jpg', alt: 'Sunlight breaking through a dark forest', title: 'Forest Light', category: 'Landscape' },
+  { image: 'assets/img/c-still.jpg', alt: 'Cosmetics arranged on a blue surface', title: 'Morning Shelf', category: 'Commercial' },
+  { image: 'assets/img/w-shore.jpg', alt: 'A bride on a wooden pier beside a lake', title: 'The Pier', category: 'Weddings' }
 ];
 
 export const STEPS = [

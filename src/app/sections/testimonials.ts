@@ -104,7 +104,22 @@ const MARKER_H = 30;
         height: 364px;
         padding: 30px 20px;
         background: var(--bg-light);
-        will-change: transform;
+        will-change: transform, filter, opacity;
+        transition: background-color 0.5s ease;
+      }
+      .ts__card h3,
+      .ts__card p,
+      .ts__card blockquote {
+        transition: color 0.5s ease;
+      }
+      /* The card at the marker is filled; the ones around it blur and fade away. */
+      .ts__card--on {
+        background: var(--brown);
+      }
+      .ts__card--on h3,
+      .ts__card--on p,
+      .ts__card--on blockquote {
+        color: var(--on-brown);
       }
       .ts__who {
         display: flex;
@@ -202,9 +217,17 @@ export class Testimonials {
     const cards = this.row().nativeElement.children as HTMLCollectionOf<HTMLElement>;
     const pitch = cards[0].offsetWidth + GAP;
     const total = pitch * (cards.length - 1) + START_X - (innerWidth - END_RIGHT);
+    const focus = p * (cards.length - 1);
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
     for (let i = 0; i < cards.length; i++) {
       const x = START_X + i * pitch - p * total;
-      cards[i].style.transform = `translate3d(${x.toFixed(1)}px, ${(x * STAIR - 8).toFixed(1)}px, 0)`;
+      const card = cards[i];
+      card.style.transform = `translate3d(${x.toFixed(1)}px, ${(x * STAIR - 8).toFixed(1)}px, 0)`;
+      if (calm) continue;
+      const away = Math.min(Math.abs(i - focus), 1.6);
+      card.style.filter = away < 0.15 ? '' : `blur(${(away * 3.2).toFixed(1)}px)`;
+      card.style.opacity = (1 - away * 0.32).toFixed(2);
+      card.classList.toggle('ts__card--on', Math.round(focus) === i);
     }
   }
 

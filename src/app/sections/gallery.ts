@@ -1,46 +1,81 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  ElementRef,
-  afterNextRender,
-  inject,
-  viewChild
-} from '@angular/core';
-import { SceneService } from '../core/scene.service';
-import { WALL } from '../data/work.data';
-import { DragCursor } from '../shared/drag-cursor';
+import { ChangeDetectionStrategy, Component, DestroyRef, afterNextRender, computed, inject, signal } from '@angular/core';
+import { WALL, WallCategory } from '../data/work.data';
+import { Lightbox } from '../shared/lightbox';
 import { Reveal } from '../shared/reveal.directive';
 
-const RING = WALL.slice(0, 10);
-const STEP = 360 / RING.length;
+type Filter = 'All' | WallCategory;
+
+const FILTERS: Filter[] = ['All', 'Portraits', 'Weddings', 'Commercial', 'Landscape', 'Events'];
+/** How long a photograph stays on the stage before the next one fades in. */
+const HOLD_MS = 5000;
 
 /**
- * A curved wall of photographs seen from inside the curve: five stand on screen,
- * the middle one smallest and flat-on, the outer ones swinging large toward you
- * and cropped by the edge of the screen. Scrolling and dragging both turn it.
+ * One large photograph on a stage that changes by itself, slowly, with a small
+ * strip of the others beneath it and a row of categories to narrow them down.
+ * Pressing the stage opens the photograph in the viewer.
  */
 @Component({
   selector: 'app-gallery',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DragCursor, Reveal],
+  imports: [Lightbox, Reveal],
   template: `
-    <section id="gallery" class="gl" #track>
-      <div class="gl__stage" #stage (pointerdown)="dragStart($event)">
-        <header class="section-head">
-          <p class="eyebrow" appReveal>Real Moments</p>
-          <h2 class="heading" appReveal="80">Every Story Through One Lens</h2>
-        </header>
-        <div class="gl__wall" #wall>
-          @for (item of ring; track item.image) {
-            <figure class="gl__card">
-              <img [src]="item.image" [attr.alt]="item.alt" draggable="false" decoding="async" />
-            </figure>
-          }
-        </div>
-        <app-drag-cursor />
+    <section id="gallery" class="gl" aria-labelledby="gl-heading">
+      <header class="section-head">
+        <p class="eyebrow" appReveal>Real Moments</p>
+        <h2 id="gl-heading" class="heading" appReveal="80">Every Story Through One Lens</h2>
+      </header>
+
+      <div class="gl__tabs" role="group" aria-label="Filter photographs" appReveal="120">
+        @for (f of filters; track f) {
+          <button type="button" [class.is-on]="filter() === f" [attr.aria-pressed]="filter() === f" (click)="setFilter(f)">
+            {{ f }}
+          </button>
+        }
       </div>
+
+      <div
+        class="gl__stage"
+        (mouseenter)="paused.set(true)"
+        (mouseleave)="paused.set(false)"
+        (focusin)="paused.set(true)"
+        (focusout)="paused.set(false)">
+        @for (item of items(); track item.image; let i = $index) {
+          <button
+            type="button"
+            class="gl__slide"
+            [class.is-on]="i === index()"
+            [attr.aria-hidden]="i !== index()"
+            [attr.tabindex]="i === index() ? 0 : -1"
+            [attr.aria-label]="'View photograph: ' + item.title"
+            (click)="open.set(i)">
+            <img [src]="item.image" [alt]="item.alt" [attr.loading]="i === 0 ? 'eager' : 'lazy'" decoding="async" draggable="false" />
+          </button>
+        }
+        <div class="gl__shade" aria-hidden="true"></div>
+
+        @if (current(); as now) {
+          <div class="gl__cap" aria-live="polite">
+            <span class="gl__kind">{{ now.category }}</span>
+            <span class="gl__title">{{ now.title }}</span>
+          </div>
+        }
+        <span class="gl__count" aria-hidden="true">{{ pad(index() + 1) }} / {{ pad(items().length) }}</span>
+
+        <button type="button" class="gl__go gl__go--prev" aria-label="Previous photograph" (click)="step(-1)">&#8592;</button>
+        <button type="button" class="gl__go gl__go--next" aria-label="Next photograph" (click)="step(1)">&#8594;</button>
+      </div>
+
+      <ul class="gl__thumbs" aria-label="Photographs">
+        @for (item of items(); track item.image; let i = $index) {
+          <li>
+            <button type="button" [class.is-on]="i === index()" [attr.aria-label]="'Show ' + item.title" (click)="pick(i)">
+              <img [src]="item.image" alt="" loading="lazy" decoding="async" draggable="false" />
+            </button>
+          </li>
+        }
+      </ul>
     </section>
+    <app-lightbox [items]="items()" [(index)]="open" />
   `,
   styles: [
     `
@@ -49,143 +84,259 @@ const STEP = 360 / RING.length;
         background: var(--bg);
       }
       .gl {
-        height: 300vh;
+        padding: var(--section-y) var(--pad);
+      }
+      .gl__tabs {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin: 40px 0 28px;
+      }
+      .gl__tabs button {
+        padding: 9px 22px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: none;
+        color: var(--ink);
+        cursor: pointer;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease,
+          border-color 0.3s ease;
+      }
+      .gl__tabs button:hover {
+        border-color: var(--brown);
+      }
+      .gl__tabs button.is-on {
+        background: var(--brown);
+        border-color: var(--brown);
+        color: var(--on-brown);
       }
       .gl__stage {
-        position: sticky;
-        top: 0;
-        height: 100svh;
-        overflow: hidden;
-        padding-top: 172px;
-        cursor: none;
-        touch-action: pan-y;
-        user-select: none;
-      }
-      .gl__wall {
-        position: absolute;
-        inset: 0;
-      }
-      .gl__card {
-        position: absolute;
-        left: 50%;
-        top: 61.3%;
-        margin: 0;
-        width: 20.56vw;
-        height: 15.97vw;
-        margin: -7.985vw 0 0 -10.28vw;
+        position: relative;
+        max-width: 1100px;
+        height: clamp(300px, 44vw, 580px);
+        margin-inline: auto;
         overflow: hidden;
         border-radius: 8px;
-        will-change: transform;
+        background: var(--past);
       }
-      .gl__card img {
+      .gl__slide {
+        position: absolute;
+        inset: 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: zoom-in;
+        opacity: 0;
+        transition: opacity 0.9s ease;
+      }
+      .gl__slide.is-on {
+        opacity: 1;
+        z-index: 1;
+      }
+      .gl__slide img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transform: scale(1);
+        transition: transform 0.9s ease;
+      }
+      /* A very slow push in on the photograph that is showing. */
+      .gl__slide.is-on img {
+        transform: scale(1.06);
+        transition: transform 7s linear;
+      }
+      .gl__slide:focus-visible {
+        outline: 2px solid var(--brown);
+        outline-offset: -4px;
+      }
+      .gl__shade {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        background: linear-gradient(transparent 55%, rgb(79 47 40 / 0.62));
+      }
+      .gl__cap {
+        position: absolute;
+        z-index: 3;
+        left: clamp(18px, 3vw, 34px);
+        bottom: clamp(14px, 2.4vw, 28px);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        color: #fff;
         pointer-events: none;
       }
-      @media (max-width: 860px) {
-        .gl__stage {
-          cursor: auto;
-          padding-top: 110px;
+      .gl__kind {
+        font-size: 12px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        opacity: 0.85;
+      }
+      .gl__title {
+        font-family: 'Allura', cursive;
+        font-size: clamp(32px, 4vw, 50px);
+        line-height: 1.05;
+        text-shadow: 0 2px 20px rgb(0 0 0 / 0.4);
+      }
+      .gl__count {
+        position: absolute;
+        z-index: 3;
+        right: clamp(18px, 3vw, 34px);
+        bottom: clamp(18px, 2.6vw, 32px);
+        font-size: 13px;
+        letter-spacing: 0.2em;
+        color: #fff;
+        opacity: 0.85;
+      }
+      .gl__go {
+        position: absolute;
+        z-index: 3;
+        top: 50%;
+        width: 44px;
+        height: 44px;
+        margin-top: -22px;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 50%;
+        background: rgb(255 255 255 / 0.2);
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        transition:
+          opacity 0.3s ease,
+          background-color 0.3s ease;
+      }
+      .gl__stage:hover .gl__go,
+      .gl__go:focus-visible {
+        opacity: 1;
+      }
+      .gl__go:hover {
+        background: var(--brown);
+      }
+      .gl__go--prev {
+        left: 18px;
+      }
+      .gl__go--next {
+        right: 18px;
+      }
+      .gl__thumbs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 16px auto 0;
+        padding: 4px;
+        overflow-x: auto;
+        list-style: none;
+      }
+      .gl__thumbs button {
+        display: block;
+        width: 92px;
+        height: 68px;
+        padding: 0;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        overflow: hidden;
+        background: none;
+        cursor: pointer;
+        opacity: 0.5;
+        transition:
+          opacity 0.3s ease,
+          border-color 0.3s ease;
+      }
+      .gl__thumbs button:hover,
+      .gl__thumbs button.is-on {
+        opacity: 1;
+      }
+      .gl__thumbs button.is-on {
+        border-color: var(--brown);
+      }
+      .gl__thumbs img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      @media (max-width: 700px) {
+        .gl__go {
+          opacity: 1;
+          width: 38px;
+          height: 38px;
+          margin-top: -19px;
         }
-        .gl__card {
-          width: 44vw;
-          height: 34vw;
-          margin: -17vw 0 0 -22vw;
+        .gl__thumbs {
+          justify-content: flex-start;
+        }
+        .gl__thumbs button {
+          flex: none;
+          width: 76px;
+          height: 56px;
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        .gl {
-          height: auto;
-        }
-        .gl__stage {
-          position: relative;
-          height: auto;
-          padding-block: 80px;
-          cursor: auto;
-        }
-        app-drag-cursor {
-          display: none;
-        }
-        .gl__wall {
-          position: relative;
-          display: flex;
-          gap: 14px;
-          margin-top: 40px;
-          padding-inline: 60px;
-          overflow-x: auto;
-        }
-        .gl__card {
-          position: relative;
-          left: auto;
-          top: auto;
-          flex: none;
-          margin: 0;
+        .gl__slide,
+        .gl__slide img,
+        .gl__slide.is-on img {
+          transition: none;
+          transform: none;
         }
       }
     `
   ]
 })
 export class Gallery {
-  private readonly scenes = inject(SceneService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly track = viewChild.required<ElementRef<HTMLElement>>('track');
-  private readonly wall = viewChild.required<ElementRef<HTMLElement>>('wall');
 
-  readonly ring = RING;
-  private scroll = 0;
-  private dragged = 0;
+  readonly filters = FILTERS;
+  readonly filter = signal<Filter>('All');
+  readonly index = signal(0);
+  readonly open = signal<number | null>(null);
+  readonly paused = signal(false);
+
+  readonly items = computed(() => {
+    const f = this.filter();
+    return f === 'All' ? WALL : WALL.filter((w) => w.category === f);
+  });
+  readonly current = computed(() => this.items()[this.index()] ?? null);
 
   constructor() {
     afterNextRender(() => {
-      const stop = this.scenes.track(this.track().nativeElement, (p) => {
-        // Measured on the reference: one 36° step every 450px, the move taking 230px.
-        const px = p * (this.track().nativeElement.offsetHeight - innerHeight);
-        const s = Math.max(0, px - 120) / 450;
-        const whole = Math.floor(s);
-        const f = Math.min(1, (s - whole) / (230 / 450));
-        this.scroll = (whole + f * f * (3 - 2 * f)) * STEP;
-        this.layout();
-      });
-      this.destroyRef.onDestroy(stop);
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      let last = 0;
+      const timer = setInterval(() => {
+        const now = Date.now();
+        if (this.paused() || this.open() !== null || document.hidden) {
+          last = now;
+          return;
+        }
+        if (now - last >= HOLD_MS) {
+          last = now;
+          this.step(1);
+        }
+      }, 500);
+      this.destroyRef.onDestroy(() => clearInterval(timer));
     });
   }
 
-  private layout(): void {
-    const unit = (innerWidth > 860 ? innerWidth : innerWidth * 2.14) / 1440;
-    const radius = 500 * unit;
-    const camera = 1000 * unit;
-    const cards = this.wall().nativeElement.children as HTMLCollectionOf<HTMLElement>;
-    const turn = this.scroll + this.dragged;
-    for (let i = 0; i < cards.length; i++) {
-      // Wrapped into -180…180 so a card leaving one edge re-enters at the other.
-      const theta = ((((i * STEP - turn) % 360) + 540) % 360) - 180;
-      const card = cards[i];
-      if (Math.abs(theta) > 96) {
-        card.style.visibility = 'hidden';
-        continue;
-      }
-      const rad = (theta * Math.PI) / 180;
-      card.style.visibility = 'visible';
-      card.style.transform = `perspective(${camera.toFixed(1)}px) translate3d(${(radius * Math.sin(rad)).toFixed(1)}px, 0, ${(radius * (1 - Math.cos(rad))).toFixed(1)}px) rotateY(${(-theta).toFixed(2)}deg)`;
-    }
+  pad(n: number): string {
+    return String(n).padStart(2, '0');
   }
 
-  dragStart(event: PointerEvent): void {
-    if (this.scenes.reduced || event.button !== 0) return;
-    let lastX = event.clientX;
-    const move = (e: PointerEvent) => {
-      this.dragged -= (e.clientX - lastX) * 0.09;
-      lastX = e.clientX;
-      this.layout();
-    };
-    const end = () => {
-      removeEventListener('pointermove', move);
-      removeEventListener('pointerup', end);
-      removeEventListener('pointercancel', end);
-    };
-    addEventListener('pointermove', move);
-    addEventListener('pointerup', end);
-    addEventListener('pointercancel', end);
+  setFilter(f: Filter): void {
+    this.filter.set(f);
+    this.index.set(0);
+  }
+
+  step(by: number): void {
+    const total = this.items().length;
+    this.index.set((this.index() + by + total) % total);
+  }
+
+  pick(i: number): void {
+    this.index.set(i);
   }
 }

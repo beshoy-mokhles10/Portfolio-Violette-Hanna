@@ -6,13 +6,13 @@ export const SITE = {
   url: 'https://violette-hanna.vercel.app',
   tagline: ['Every Frame Tells Someone’s Story.', 'See the world through the lens of Violette Hanna.'],
   email: 'hello@example.com',
-  phone: '+00 000 000 0000',
+  phone: '01123301880',
   location: '[Street, City, Country]',
   days: '[Working days]',
   hours: '[Working hours]',
   socials: [
-    { icon: 'facebook', label: 'Facebook', href: 'https://www.facebook.com/' },
-    { icon: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/' },
+    { icon: 'facebook', label: 'Facebook', href: 'https://www.facebook.com/share/1CP7QZUk2h/' },
+    { icon: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/violette.bluegreenred' },
     { icon: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/' }
   ],
   /**
