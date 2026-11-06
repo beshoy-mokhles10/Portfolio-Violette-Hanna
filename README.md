@@ -19,7 +19,7 @@ npm run build    # الناتج في dist/violette-hanna/browser
 src/app/
   core/      scene (الحركة مع السكرول), smooth-scroll, nav, intro, seo
   data/      site (التواصل والروابط) · work (الصور والتصنيفات والآراء) · posts (المقالات)
-  sections/  navbar, hero, statement, story, collection, process,
+  sections/  navbar (الشريط العلوي), menu-sheet (قايمة الـ Menu الكاملة), hero, statement, story, collection, process,
              gallery (صورة كبيرة بتتغير لوحدها + تصنيفات), blog-section, testimonials, footer
   pages/     home, blogs, blog-post, contact, booking-form (فورم الحجز بـ 3 خطوات), legal
   shared/    lightbox (عارض الصور), forest, leaves, lens, logo, page-hero, post-card, icon, reveal
