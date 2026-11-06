@@ -47,6 +47,7 @@ import { Logo } from '../shared/logo';
 
       <div class="ft__bottom">
         <p>© {{ year }} {{ site.name }} Photography. All rights reserved.</p>
+        <p class="ft__credit">Designed by Beshoy Mokhles</p>
         <p class="ft__legal">
           <a routerLink="/privacy-policy">Privacy Policy</a>
           <a routerLink="/terms-and-conditions">Terms &amp; Conditions</a>
