@@ -33,6 +33,7 @@ export const QUICK_LINKS: HomeLink[] = [
   { label: 'Collection', to: 'collection' },
   { label: 'Process', to: 'process' },
   { label: 'Gallery', to: 'gallery' },
+  { label: 'Packages', to: '/packages' },
   { label: 'Blogs', to: '/blogs' },
   { label: 'Contact', to: '/contact-us' }
 ];
@@ -63,8 +64,15 @@ export const MENU_LINKS: (HomeLink & { note: string; image: string; icon: string
     label: 'Gallery',
     to: 'gallery',
     icon: 'image',
-    note: 'More frames from every kind of shoot, on one curved wall.',
+    note: 'More frames from every kind of shoot, one story at a time.',
     image: 'assets/img/n-snow.jpg'
+  },
+  {
+    label: 'Packages',
+    to: '/packages',
+    icon: 'check',
+    note: 'Sessions, what is included, and how to book.',
+    image: 'assets/img/p-studio.jpg'
   },
   {
     label: 'Blogs',

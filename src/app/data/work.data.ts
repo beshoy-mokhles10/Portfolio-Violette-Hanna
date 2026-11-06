@@ -84,3 +84,53 @@ export const TESTIMONIALS = [
   avatar: `assets/img/${avatar}.jpg`,
   quote: SAMPLE_QUOTE
 }));
+
+export interface Package {
+  name: string;
+  tagline: string;
+  price: string;
+  length: string;
+  features: string[];
+  featured?: boolean;
+}
+
+/** TODO(violette): sample packages and prices. Replace with her own, and keep the FAQ below in step. */
+export const PACKAGES: Package[] = [
+  {
+    name: 'Mini Session',
+    tagline: 'A short, relaxed shoot for one moment.',
+    price: 'From $000',
+    length: '1 hour',
+    features: ['One location', '15 edited photographs', 'Private online gallery', 'Print release']
+  },
+  {
+    name: 'Signature Session',
+    tagline: 'The one most people choose.',
+    price: 'From $000',
+    length: '2.5 hours',
+    features: ['Up to two locations', '40 edited photographs', 'Private online gallery', 'Three fine-art prints', 'Print release'],
+    featured: true
+  },
+  {
+    name: 'The Full Story',
+    tagline: 'A whole day, from first light to last.',
+    price: 'From $000',
+    length: 'Half a day',
+    features: ['As many locations as fit the day', '80 or more edited photographs', 'Private online gallery', 'A printed album', 'Print release']
+  }
+];
+
+export const EVERY_SESSION = [
+  { title: 'A planning call', text: 'We talk through the light, the place and what you want to remember.' },
+  { title: 'Careful editing', text: 'Every photograph is colour-graded by hand, never filtered in bulk.' },
+  { title: 'A private gallery', text: 'Yours to view, share and download, kept online for a year.' },
+  { title: 'A reply in 24 hours', text: 'Every message is answered personally.' }
+];
+
+export const FAQ = [
+  { q: 'How do I book?', a: 'Send a request through the booking form. Choose the kind of shoot and when you are thinking of it, and I will reply within 24 hours to confirm the details.' },
+  { q: 'When will I get my photographs?', a: 'Usually within two weeks of the shoot. Weddings and larger projects take a little longer, and I will tell you the date up front.' },
+  { q: 'What if it rains?', a: 'We move the shoot to another day at no cost. Soft, grey light can be beautiful too, so we decide together on the day.' },
+  { q: 'Do you travel?', a: 'Yes. Shoots in the city are included, and further places are arranged with a small travel fee agreed beforehand.' },
+  { q: 'Do you offer weddings and commercial work?', a: 'Both, and each is quoted on its own, because no two are alike. Send a request and describe what you have in mind.' }
+];
