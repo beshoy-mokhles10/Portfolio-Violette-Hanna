@@ -5,8 +5,11 @@ export interface Post {
   date: string;
   minutes: number;
   image: string;
+  /** What the cover photograph shows, for screen readers. */
+  imageAlt: string;
   /** The second, wider photo inside the article. */
   inset: string;
+  insetAlt: string;
   intro: string[];
   stats: { value: string; label: string }[];
   sections: { heading: string; text: string; rulesTitle?: string; rules?: string[] }[];
@@ -22,7 +25,9 @@ export const POSTS: Post[] = [
     date: 'Oct 28, 2026',
     minutes: 4,
     image: 'assets/img/p-woman-profile.jpg',
+    imageAlt: 'A woman in profile, lit by soft window light',
     inset: 'assets/img/p-classic.jpg',
+    insetAlt: 'A classic black-and-white studio portrait',
     intro: [
       'Almost everyone arrives at a portrait session with the same worry: they don’t know what to do with their hands, their face, or themselves.',
       'That isn’t your job. A portrait session is mostly a conversation with a camera nearby, and the good pictures tend to arrive once you stop waiting for them.'
@@ -51,7 +56,9 @@ export const POSTS: Post[] = [
     date: 'Oct 12, 2026',
     minutes: 5,
     image: 'assets/img/w-bride-veil.jpg',
+    imageAlt: 'A bride whose veil is lifted by the wind',
     inset: 'assets/img/e-celebration.jpg',
+    insetAlt: 'Guests in flower garlands at a celebration',
     intro: [
       'A wedding or a big event moves quickly, and it never pauses for the camera. The best thing you can do for your photographs happens weeks before the day.',
       'A little planning around light and time leaves everyone free to enjoy themselves while the pictures happen around them.'
@@ -80,7 +87,9 @@ export const POSTS: Post[] = [
     date: 'Sep 24, 2026',
     minutes: 4,
     image: 'assets/img/c-watch.jpg',
+    imageAlt: 'A single watch on a dark ground, lit to show the dial',
     inset: 'assets/img/c-still.jpg',
+    insetAlt: 'Cosmetics arranged on a blue surface',
     intro: [
       'A product photograph has one job: to make someone understand and want the thing in front of them. That starts with knowing where the image is going to live.',
       'A website banner, a social post and a printed catalogue all ask for different framing, so the brief matters as much as the lighting does.'
@@ -109,7 +118,9 @@ export const POSTS: Post[] = [
     date: 'Sep 3, 2026',
     minutes: 3,
     image: 'assets/img/n-valley.jpg',
+    imageAlt: 'Layers of valley and cloud under an afternoon sky',
     inset: 'assets/img/n-lake-pines.jpg',
+    insetAlt: 'Pine trees along a blue mountain lake',
     intro: [
       'A landscape can’t be directed. You can’t ask a cloud to move or a sunset to wait, so the whole craft comes down to being there when it happens.',
       'That means checking the weather and walking the location, and then doing the hardest part, which is standing still for a long time.'

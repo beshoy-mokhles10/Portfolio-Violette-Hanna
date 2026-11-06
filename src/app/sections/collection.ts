@@ -55,7 +55,7 @@ const SETTLE_MS = 200;
         <div class="cl__row" #row>
           @for (print of prints; track print.image) {
             <figure class="cl__card">
-              <img [src]="print.image" [attr.alt]="print.title" draggable="false" decoding="async" />
+              <img [src]="print.image" [attr.alt]="print.note" draggable="false" decoding="async" />
             </figure>
           }
         </div>

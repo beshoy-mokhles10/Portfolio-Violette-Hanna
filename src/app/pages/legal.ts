@@ -27,6 +27,7 @@ const DOCS: Record<string, LegalDoc> = {
       { heading: 'Information I Collect', text: 'When you send a message through the contact form, I receive the name, email address, phone number and message you choose to provide. The website does not ask for anything else.' },
       { heading: 'How It Is Used', text: 'Your details are used only to reply to you and to arrange and deliver the work you ask about. They are not sold or shared for marketing.' },
       { heading: 'Third-Party Services', text: 'The site loads fonts from Google Fonts and Fontshare, and is served by a hosting provider. These services may process technical data such as your IP address, under their own policies.' },
+      { heading: 'Visit Statistics', text: 'The site counts visits in an anonymous way, such as which pages are opened and from which country. It sets no cookies and does not identify you personally.' },
       { heading: 'Your Choices', text: 'You can ask to see, correct or delete the information you have sent me at any time by writing to the email address on the contact page.' },
       { heading: 'Changes', text: 'This policy may be updated from time to time. The current version is always on this page.' }
     ]

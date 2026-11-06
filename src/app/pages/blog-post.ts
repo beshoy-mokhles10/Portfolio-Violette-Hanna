@@ -24,7 +24,7 @@ import { Reveal } from '../shared/reveal.directive';
         [text]="p.excerpt" />
 
       <div class="bp">
-        <img class="bp__cover" [src]="p.image" alt="" decoding="async" appReveal />
+        <img class="bp__cover" [src]="p.image" [alt]="p.imageAlt" decoding="async" appReveal />
 
         <p class="bp__byline">
           <span class="bp__avatar" aria-hidden="true">V</span>
@@ -49,7 +49,7 @@ import { Reveal } from '../shared/reveal.directive';
               }
             </ul>
 
-            <img class="bp__inset" [src]="p.inset" alt="" loading="lazy" decoding="async" appReveal />
+            <img class="bp__inset" [src]="p.inset" [alt]="p.insetAlt" loading="lazy" decoding="async" appReveal />
 
             @for (section of p.sections; track section.heading; let i = $index) {
               <section [id]="'part-' + i" class="bp__section">
